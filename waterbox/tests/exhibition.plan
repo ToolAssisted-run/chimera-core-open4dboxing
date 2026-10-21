@@ -1,0 +1,51 @@
+# the gate's exhibition (run-gate.sh): the title's EXHIBITION, the boxers as they come (Paul Savage, the human, against
+# The Champ), the manual's question answered (the run's: Mac the ouch), the ring, the round started at its CONTROLS
+# panel, and the human boxer on the keypad (the keyboard's second set): forward, punches with Enter and the right
+# Shift, sideways and back
+key 4100 enter
+mouse 5000 135 65
+click 5400
+click 8000
+type 15000 Mac the ouch
+key 29000 enter
+hold 29200 kp8 30
+key 29245 enter
+key 29290 rshift
+hold 29335 kp4 20
+hold 29380 kp9 25
+hold 29425 kp8 30
+key 29470 enter
+key 29515 rshift
+hold 29560 kp4 20
+hold 29605 kp9 25
+hold 29650 kp8 30
+key 29695 enter
+key 29740 rshift
+hold 29785 kp4 20
+hold 29830 kp9 25
+hold 29875 kp8 30
+key 29920 enter
+key 29965 rshift
+hold 30010 kp4 20
+hold 30055 kp9 25
+hold 30100 kp8 30
+key 30145 enter
+key 30190 rshift
+hold 30235 kp4 20
+hold 30280 kp9 25
+hold 30325 kp8 30
+key 30370 enter
+key 30415 rshift
+hold 30460 kp4 20
+hold 30505 kp9 25
+hold 30550 kp8 30
+key 30595 enter
+key 30640 rshift
+hold 30685 kp4 20
+hold 30730 kp9 25
+hold 30775 kp8 30
+key 30820 enter
+key 30865 rshift
+hold 30910 kp4 20
+hold 30955 kp9 25
+end 31200

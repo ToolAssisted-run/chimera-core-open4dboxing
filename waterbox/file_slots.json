@@ -1,0 +1,4 @@
+{
+  "_comment": "This file lists the kinds of file a 4D Sports Boxing project can hold: none. The game is the two floppies' images, which the project supplies as firmware (with the MT-32's ROMs when the sound is the MT-32's), and what the game saves - its boxers, the Main Event, the system panel's defaults - lives in the machine's memory, so a savestate carries it.",
+  "slots": []
+}

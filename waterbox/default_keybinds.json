@@ -1,0 +1,88 @@
+{
+  "_comment": [
+    "Default bindings for 4D Sports Boxing: the mouse as the game's mouse (its buttons, and its place over the picture as",
+    "the two axes), and the PC's keyboard as the game reads it - the numeric keypad (the arrows, Home, PgUp, End and PgDn",
+    "too) for the human boxer's default controls with Enter and the right Shift its punch buttons, the letters and digits",
+    "themselves, Esc, Tab, Ctrl and Alt. A default setup sends either Shift as Shift: it is the right Shift here, the",
+    "second set's button; capitals come with either. Some of these are also Chimera's own keys (F1-F10 the savestate",
+    "slots, R and Shift+R); Chimera's take precedence while its hotkeys are bound."
+  ],
+  "AllTrollers": {
+    "4D Sports Boxing": {
+      "Mouse Left": "WMouse L",
+      "Mouse Right": "WMouse R",
+      "Keypad 8": "Keypad8, Up",
+      "Keypad 2": "Keypad2, Down",
+      "Keypad 4": "Keypad4, Left",
+      "Keypad 6": "Keypad6, Right",
+      "Keypad 7": "Keypad7, Home",
+      "Keypad 9": "Keypad9, PageUp",
+      "Keypad 1": "Keypad1, End",
+      "Keypad 3": "Keypad3, PageDown",
+      "Keypad 5": "Keypad5",
+      "Keypad 0": "Keypad0",
+      "Enter": "Enter, KeypadEnter",
+      "Space": "Space",
+      "Backspace": "Backspace",
+      "Esc": "Escape",
+      "Tab": "Tab",
+      "Left Shift": "LeftShift",
+      "Right Shift": "Shift, RightShift",
+      "Ctrl": "Ctrl, LeftCtrl, RightCtrl",
+      "Alt": "Alt, LeftAlt, RightAlt",
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D",
+      "E": "E",
+      "F": "F",
+      "G": "G",
+      "H": "H",
+      "I": "I",
+      "J": "J",
+      "K": "K",
+      "L": "L",
+      "M": "M",
+      "N": "N",
+      "O": "O",
+      "P": "P",
+      "Q": "Q",
+      "R": "R",
+      "S": "S",
+      "T": "T",
+      "U": "U",
+      "V": "V",
+      "W": "W",
+      "X": "X",
+      "Y": "Y",
+      "Z": "Z",
+      "0": "Number0",
+      "1": "Number1",
+      "2": "Number2",
+      "3": "Number3",
+      "4": "Number4",
+      "5": "Number5",
+      "6": "Number6",
+      "7": "Number7",
+      "8": "Number8",
+      "9": "Number9"
+    }
+  },
+  "AllTrollersAutoFire": {
+    "4D Sports Boxing": {}
+  },
+  "AllTrollersAnalog": {
+    "4D Sports Boxing": {
+      "Mouse X": {
+        "Value": "WMouse X",
+        "Mult": 1.0,
+        "Deadzone": 0.0
+      },
+      "Mouse Y": {
+        "Value": "WMouse Y",
+        "Mult": 1.0,
+        "Deadzone": 0.0
+      }
+    }
+  }
+}
