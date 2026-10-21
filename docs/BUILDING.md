@@ -186,7 +186,7 @@ same game; that a savestate before every step loses nothing; and that a new
 host can finish a run from a state taken half way. It then checks the
 pictures, each setting reaching the game (the four builds and their frame
 rates, the five sound drivers, the MT-32 by default, the clock), the keys in
-the game's own keyboard table, the game's end after three wrong answers, the
+the game's own keyboard table, the game's end at the first wrong answer, the
 property table, a poke and a freeze, the refusals, an image of the project's
 own, that the game's stack is asked for as a stack (`MAP_STACK`), and that the
 package is the same twice.
@@ -212,7 +212,52 @@ Without the images only the build, the stack check, the declarations
 everything else is one `game SKIP` line: this is what CI runs. Without the
 MT-32's ROMs the MT-32's legs are skipped.
 
-This repository has no frontend gate script yet (`docs/PLAN.md`).
+### The frontend gate
+
+```
+./waterbox/tests/run-frontend.sh --chimera <chimera> [--chimera-run <path>] [-p <package>] [--windows <bundle>]
+```
+
+Usage: `./waterbox/tests/run-frontend.sh [--chimera <checkout or bundle>]
+[--chimera-run <path>] [-m <miniBox dir>] [-p <package>] [-d <dir>]
+[--windows <bundle>]`
+
+- `--chimera` names a Chimera checkout, built as in "Chimera's contract
+  tests" below (`build/Chimera.exe`, `build/dll/chimera-run`), or a release
+  bundle from Chimera's Releases page (`Chimera.exe` at its top; a bundle has
+  no `chimera-run`). Default: `../chimera`, then `~/chimera`.
+- `--chimera-run` names `chimera-run` when it is not in the checkout.
+- `-p` tests that package (a release's, say); without it the script builds
+  one with `build-package.sh` (`-m` as there).
+- `-d` names the folder that holds the floppies' images and `roland/`, as the
+  core gate's does.
+- `--windows` names Chimera's Windows bundle, which the script runs under
+  Wine.
+- `MONO` and `WINE` name the commands that run `Chimera.exe` (default `mono`
+  and `wine`).
+
+It needs the native reference built (`make -C waterbox -f native.mk`), Mono
+and Xvfb (the packages CI installs), and the floppies' images. It plays the
+core gate's exhibition (31,200 steps from the title into the ring) and
+compares the Game State, Conventional Memory and Video Memory domains after
+the last step with the native reference's:
+
+- through `chimera-run`, from a movie file and from a hand-written project
+  (`tests/make-project.py`), and the last picture too;
+- in Chimera itself, headless on a private Xvfb, the same project opened and
+  played through Lua (`tests/frontend.lua`) and saved, and the saved project
+  played again by a new Chimera process;
+- with `--windows`, that saved project played by Chimera's Windows build.
+
+It also tries the property library (`game.list`, `get`, `set`, `describe`)
+against the same bytes, and checks that the core's refusal of a start date
+that is not a date reaches the frontend, that the package's keybinds become
+the frontend's defaults, and that nothing is written under Chimera's folder.
+With the MT-32's ROMs in `roland/` the project uses the default sound, the
+MT-32's; without them, the Sound Blaster's.
+
+It prints one line per check, as the core gate does, and its work files are in
+`build/frontend/`. Without the images it only builds (or takes) the package.
 
 ### Chimera's contract tests
 
@@ -287,3 +332,24 @@ file slots: what the game saves lives in the machine's memory.
   expected, see "The core gate".
 - `packaging is not deterministic`: two archives of the same staging folder
   differed. The package's SHA-1 is the core's identity, so the script stops.
+- No Mono for the frontend gate (Ubuntu 26.04 has no Mono package): `MONO`
+  can name a command that runs `mono` elsewhere, for example in an
+  `ubuntu:24.04` container with `mono-complete` and Mesa's GL drivers, the
+  home and `/tmp/.X11-unix` mounted at their own paths, and `DISPLAY`,
+  `LD_LIBRARY_PATH`, `CHIMERA_DATA_HOME`, `MINIBOX_LOG` and `MINIHAWK_JOB`
+  passed in.
+- Under Wine, `Chimera.exe` needs Microsoft's .NET Framework 4.8 in the
+  prefix: `winetricks -q dotnet48` (winetricks needs `cabextract`). Wine Mono
+  (9.4.0 for Wine 10.0) starts it too, but in 3 of 6 runs Chimera died inside
+  Wine Mono's runtime as it booted the core (a read of address 48h or 58h in
+  `libmono-2.0-x86_64.dll`); on .NET 4.8 it did not, and Chimera on Windows
+  runs on .NET 4.8.
+- Under Wine, `The concurrencyLevel argument must be positive` as Chimera
+  starts: on a machine with more than 255 CPUs Wine tells Windows programs
+  there are none (the count wraps in a byte). `WINE` can name a wrapper that
+  preloads a library whose `sysconf` (`_SC_NPROCESSORS_ONLN` and `_CONF`) and
+  `get_nprocs` say 8, and runs `wine` under `taskset -c 0-7`.
+- Under Wine, `Application tried to create a window, but no driver could be
+  loaded`, then Chimera's `This frontend requires OpenGL 3.2`: Wine's desktop
+  was not up when Chimera made its first window. The script starts
+  `explorer.exe` first.

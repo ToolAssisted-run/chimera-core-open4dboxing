@@ -102,7 +102,7 @@ Native == sandbox (picture, sound, every step's length, every memory domain)
 over the title, an exhibition into the fight, the EGA's, CGA's and Tandy's
 titles and the MT-32's; determinism, a savestate before every step, a new host
 mid-run, turbo; the pictures; each setting reaching the game; the keys in the
-game's own keyboard table; the game's end after three wrong answers; the
+game's own keyboard table; the game's end at the first wrong answer; the
 property table, a poke and a freeze; the refusals; an image of the project's
 own; the package - each new leg seen to fail on a break of its own. The
 MT-32's sound is held to the sandbox, not to the native reference: Munt builds
@@ -112,3 +112,13 @@ The game is the user's: put the floppies' images (disk1.img, disk2.img) in
 `tests/roms-local` and the MT-32's ROMs (MT32_CONTROL.ROM, MT32_PCM.ROM) in
 `tests/roms-local/roland`, or pass `-d`. Without them only the build, the
 declarations and the no-files refusal run.
+
+```
+./waterbox/tests/run-frontend.sh --chimera <chimera> [--windows <Windows bundle>]
+```
+
+The frontend gate: the same exhibition played through `chimera-run` and
+through Chimera itself (headless), each ending on the native reference's
+memory; the project Chimera saved played again by a new process, and by
+Chimera's Windows build under Wine; the property library, the core's refusal,
+the keybinds. See [docs/BUILDING.md](docs/BUILDING.md).

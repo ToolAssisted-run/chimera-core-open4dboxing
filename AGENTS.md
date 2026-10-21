@@ -26,7 +26,9 @@ and on Windows. The package carries none of the game's data and no MT-32 ROM.
 - `waterbox/run-native.c`, `run-wbx.c`, `gate-harness.h` - the gate's two
   harnesses.
 - `waterbox/tests/` - the gate's checkers, its scenario (`exhibition.plan`)
-  and the converter of a scenario into one of its movies (`plan2movie.py`).
+  and the converter of a scenario into one of its movies (`plan2movie.py`);
+  the frontend gate (`run-frontend.sh`), with the project it writes
+  (`make-project.py`) and the Lua that plays it in Chimera (`frontend.lua`).
 - `tests/roms-local/` - the floppies' images and the MT-32's ROMs for the
   gate; `build/` - everything built. Both gitignored.
 - `docs/BUILDING.md` - the build in detail; `docs/PLAN.md` - the decisions
@@ -91,6 +93,18 @@ or the folder chosen in File > Core Manager > Change folder...
   is newer than `core.wbx`.
 - The MT-32's sound is held to the sandbox only, not to the native reference.
 - Results and pictures: `build/gate/`.
+
+The frontend gate plays the same exhibition through Chimera itself:
+
+```
+./waterbox/tests/run-frontend.sh --chimera <chimera checkout or release bundle> [--windows <Windows bundle>]
+```
+
+- It must end with `0 failed`. It needs the native reference built, Mono,
+  Xvfb and the floppies' images; `--windows` runs Chimera's Windows bundle
+  under Wine (`docs/BUILDING.md`, "The frontend gate").
+- Run it after a change to what the frontend sees: the declarations, the
+  keybinds, the properties, the refusals, the input.
 
 CI also runs Chimera's contract tests against the package
 (`docs/BUILDING.md`, "Chimera's contract tests").

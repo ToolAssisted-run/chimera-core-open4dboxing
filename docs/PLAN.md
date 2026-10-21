@@ -127,11 +127,54 @@ structure came from.
   was bound to `WMouse Q` fail `KeybindsNameKeysAndMouseInputsChimeraSends`,
   naming it: they read this package.
 
+## 2026-10-21: published, and the frontend gate
+
+- **Published** at the owner's request: this repository, public, its CI green
+  on the first push (the four legs a public runner can run, and Chimera's
+  contract tests, 22), the first releases "Development build 039785ef" and
+  "Nightly 2026-10-21"; a row in Chimera's roster (chimera e5dd821) and in
+  toolassisted.run's list of cores.
+- **The frontend gate** (`waterbox/tests/run-frontend.sh`), on the published
+  nightly package (sha1 648d440c) with Chimera's own dev build e5dd821f (its
+  Linux and Windows bundles) and a `chimera-run` built from Chimera 4a2872d,
+  the exhibition's 31,200 steps with the default settings (the MCGA program,
+  the MT-32): 10 checks passed, in about 7 minutes on jaffanator2. The Game
+  State, Conventional Memory and Video Memory domains after the last step are
+  the native reference's through `chimera-run` (from a movie file, with the
+  last picture, and from a project), in Chimera's window (headless, through
+  Lua), for the project Chimera saved played by a new Chimera, and for that
+  saved project played by Chimera's Windows build. The property library, the
+  core's refusal of a start date that is not a date, the package's keybinds
+  (57 bindings, 2 analog) and a Chimera folder left as it was are checked too.
+- **Windows is Wine** here: Chimera's Windows bundle under Wine 10.0, on
+  Linux, not on a Windows machine (none is reachable from this one). What
+  failed only on Windows so far was stacks, which Wine delivers its own way,
+  so this is weaker than a Windows machine. What Wine needed: Microsoft's
+  .NET Framework 4.8 in the prefix (winetricks), which Chimera runs on in
+  Windows - under Wine Mono 9.4.0 Chimera died inside Mono's runtime
+  (`libmono-2.0-x86_64.dll`, a read of address 48h or 58h) as it booted the
+  core in 3 of 6 runs, and on .NET 4.8 in none of 7; on jaffanator2's
+  256 CPUs Wine tells Windows programs there are none (the count wraps in a
+  byte) and .NET stops at once, so the gate's Wine saw 8 (a preloaded
+  `sysconf`); Chimera's first window does not bring up Wine's desktop, so the
+  script starts `explorer.exe` first; and the config skips the warnings
+  Chimera shows an administrator and an old Windows 10, which is what Wine
+  runs as and says it is.
+- **Mono** on jaffanator2 (Ubuntu 26.04 has none): Chimera CI's Ubuntu 24.04
+  and its `mono-complete` in a container, the script's `MONO`.
+- Each check new here seen to fail on a break of its own: the mouse never
+  moved in the project (`make-project.py`) - the five comparisons with the
+  native reference fail; the saved project's typed answer cleared - the two
+  replays of it fail; Blue.Health looked for two bytes off - the property
+  check fails; a start date that is a date - the refusal check fails; one
+  binding changed in the expected keybinds - the keybind check fails; the
+  Base path in Chimera's folder, and the data home left to Chimera (which then
+  writes in `~/.local/share/chimera`) - the home check fails.
+
 ## Open
 
-- The frontend gate (`waterbox/tests/run-frontend.sh`, docs/new-core.md
-  section 8): a project through the real frontend, headless, and a movie
-  replayed on Linux and on Windows. Not yet done.
+- A run on a Windows machine (the frontend gate's Windows half ran under
+  Wine).
 - Properties for the EGA, CGA and Tandy programs.
 - The joystick (Open4DBoxing emulates the game port; Chimera's axes could
   drive it).
