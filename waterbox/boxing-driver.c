@@ -4,10 +4,10 @@
  * Open4DBoxing's game_run() is the DOS game as one blocking call: the program
  * recompiled from its machine code, on a runtime that counts the instructions
  * it runs. Its clocks - the timer chip, the BIOS's ticks, DOS's date and time
- * - go by that count (GameHost.cycles: 22,000 instructions a millisecond, the
- * speed of the DOSBox-X machine it was checked against), and nothing in it
- * reads the host's time, so a run is the same run everywhere. The PC's date
- * and time at the start is a setting. Here game_run runs on a stack of its own
+ * - go by that count (GameHost.cycles: the CPU speed setting, 22,000
+ * instructions a millisecond by default, the speed of the DOSBox-X machine it
+ * was checked against), and nothing in it reads the host's time, so a run is
+ * the same run everywhere. The PC's date and time at the start is a setting. Here game_run runs on a stack of its own
  * (coro.c) and its host is this file:
  *
  * - each video frame the game passes (GameHost.frame) ends the step: the
@@ -426,6 +426,16 @@ int boxdrv_init(char *err, int errsize)
 		return 0;
 	}
 
+	/* the PC's speed, as DOSBox's cycles (instructions a millisecond): the
+	 * game's frames take its time, its fight's logic its timer's ticks; at
+	 * 220,000 every frame fits in one of the timer's 10 ms ticks */
+	const long cycles = wbx_setting_long("cpu_speed", 22000);
+	if (cycles < 1000 || cycles > 10000000)
+	{
+		snprintf(err, (size_t)errsize, "the CPU speed is %ld; it goes from 1000 to 10000000 instructions a millisecond", cycles);
+		return 0;
+	}
+
 	if (!check_files(err, errsize)) return 0;
 	if (g.mt32 && !mt32_open(err, errsize)) return 0;
 
@@ -439,7 +449,7 @@ int boxdrv_init(char *err, int errsize)
 		.frame = host_frame,
 		.midi = g.mt32 ? host_midi : NULL,
 		.ctx = NULL,
-		.cycles = 22000,
+		.cycles = (uint32_t)cycles,
 		.startTime = start,
 	};
 	/* the game's whole run on its own stack: the DOS program keeps its state in

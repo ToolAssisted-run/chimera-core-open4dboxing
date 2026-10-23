@@ -192,6 +192,20 @@ def main():
                     " which the project supplies as firmware.",
             },
             {
+                "name": "cpu_speed",
+                "display": "CPU Speed",
+                "type": "int",
+                "default": 22000,
+                "min": 1000,
+                "max": 10000000,
+                "description": "The PC's speed, as DOSBox's cycles: the instructions it runs a"
+                    " millisecond (the default, 22,000, is the 486 of the DOSBox-X machine"
+                    " Open4DBoxing was checked against). The game's frames take its time, and in a"
+                    " fight the boxers' moves go by the game's timer: at 220,000 every frame fits in"
+                    " one of the timer's 10 ms ticks, and the fight goes the same whatever the"
+                    " frames draw. A movie records the speed it ran with.",
+            },
+            {
                 "name": "clock_start",
                 "display": "Start Date and Time",
                 "type": "string",
