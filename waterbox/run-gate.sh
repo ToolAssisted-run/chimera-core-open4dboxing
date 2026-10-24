@@ -10,6 +10,8 @@
 #   - take its settings: each of the four builds (its own pictures and frame
 #     rate), each sound driver (the MT-32's with its ROMs), the PC's clock
 #   - give the game its keys as its own keyboard table has them
+#   - with the cosmetic camera on, show the cameras' keys' views and leave the
+#     game alone: the same memory, sound, clock and steps as without it
 #   - end when the manual's question is answered wrongly, as the original
 #     does, and be a frame of nothing after
 #   - export a property table that holds to chimera's docs/game-cores.md, and
@@ -184,10 +186,12 @@ fi
 
 # ------------------------------------------------------------------ 5. the runs
 python3 "$here/tests/plan2movie.py" "$here/tests/exhibition.plan" "$work/exhibition.movie"
+python3 "$here/tests/plan2movie.py" "$here/tests/exhibition.plan" "$here/tests/camera.plan" "$work/camera.movie"
 # name, steps, settings, what the run does
 tests=(
 	"title|2000|{}|title"
 	"exhibition|31200|{}|exhibition"
+	"camera|31200|{\"cosmetic_camera\":true}|camera"
 	"ega|2000|{\"video\":\"ega\"}|title"
 	"cga|2000|{\"video\":\"cga\"}|title"
 	"tandy|2000|{\"video\":\"tandy\"}|title"
@@ -198,6 +202,7 @@ test_args() {
 		title) args=(--screenshot "700:$work/$2-title.tga" --screenshot "1999:$work/$2-credits.tga") ;;
 		exhibition) args=(--movie "$work/exhibition.movie" --screenshot "4300:$work/select.tga" --screenshot "8300:$work/question.tga"
 			--screenshot "29150:$work/round.tga" --screenshot "31199:$work/fight.tga") ;;
+		camera) args=(--movie "$work/camera.movie" --screenshot "29150:$work/camera-round.tga" --screenshot "31199:$work/camera-fight.tga") ;;
 	esac
 }
 for t in "${tests[@]}"; do
@@ -287,6 +292,30 @@ EOF
 	fi
 else
 	report "sound:mt32" SKIP "no MT-32 ROMs (MT32_CONTROL.ROM, MT32_PCM.ROM) in $data/roland"
+fi
+
+# the cosmetic camera: its run (the exhibition with F2, F5 and F9 in the round)
+# is the exhibition's game - every memory domain, the sound, the clock, the
+# steps - and its picture the game's until the first key, then the cameras'
+gameOnly() { grep -E '^(frames|vsync|audioHash|stepsHash|lagFrames|clock|domain\[)'; }
+if [ -s "$work/camera.box.txt" ] && [ -s "$work/exhibition.box.txt" ]; then
+	gameOnly < "$work/exhibition.box.txt" > "$work/cam-ex.txt"
+	gameOnly < "$work/camera.box.txt" > "$work/cam-cam.txt"
+	if cmp -s "$work/cam-ex.txt" "$work/cam-cam.txt" && [ "$(grep -c . "$work/cam-cam.txt")" -gt 3 ]; then
+		report "camera:game" PASS "the camera's keys pressed, the game the exhibition's ($(grep -c . "$work/cam-cam.txt") digests: memory, sound, clock, steps)"
+	else
+		report "camera:game" FAIL "$(diff "$work/cam-ex.txt" "$work/cam-cam.txt" | tr '\n' ' ' | head -c 110)"
+	fi
+	png camera-round; png camera-fight
+	if [ "$(pixels "$work/camera-round.tga")" = "$(pixels "$work/round.tga")" ] &&
+	   [ "$(pixels "$work/camera-fight.tga")" != "$(pixels "$work/fight.tga")" ] &&
+	   [ "$(sed -n "s/^videoHash=//p" "$work/camera.box.txt")" != "$(sed -n "s/^videoHash=//p" "$work/exhibition.box.txt")" ]; then
+		report "camera:pictures" PASS "step 29150 the game's picture (no key yet), step 31199 F9's view (build/gate/camera-fight.png)"
+	else
+		report "camera:pictures" FAIL "step 29150 $(pixels "$work/camera-round.tga") (game $(pixels "$work/round.tga")), step 31199 $(pixels "$work/camera-fight.tga") (game $(pixels "$work/fight.tga"))"
+	fi
+else
+	report "camera:game" SKIP "no exhibition runs (no floppies' images)"
 fi
 
 # ------------------------------------------------------------------ 7. the settings

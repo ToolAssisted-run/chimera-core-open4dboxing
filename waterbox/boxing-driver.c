@@ -39,6 +39,7 @@
 #include "coro.h"
 
 #include "asm2c.h"
+#include "camera.h"
 #include "disks.h"
 #include "game.h"
 #include "opl.h"
@@ -170,6 +171,8 @@ static void apply_buttons(void)
 				if (down) asm_mouse.buttons |= bit;
 				else asm_mouse.buttons &= (u16)~bit;
 			}
+			else if (b >= BOX_BTN_F1 && b <= BOX_BTN_F10 && camera_get())
+				camera_key(b - BOX_BTN_F1, down);   /* the cosmetic camera's, the game never sees them */
 			else
 				game_key(k_scan[b], false, down);
 		}
@@ -432,6 +435,11 @@ int boxdrv_init(char *err, int errsize)
 	 * game's frames take its time, its fight's logic its timer's ticks; at
 	 * 220,000 every frame fits in one of the timer's 10 ms ticks */
 	const long cycles = wbx_setting_long("cpu_speed", 22000);
+
+	/* the cosmetic camera (Open4DBoxing's camera.h): F1-F10 choose the camera
+	 * shown, and the game never sees them, so a movie plays the same with the
+	 * cameras as without them (the MCGA program only; the others ignore it) */
+	camera_set(wbx_setting_bool("cosmetic_camera", 0) != 0);
 	if (cycles < 1000 || cycles > 10000000)
 	{
 		snprintf(err, (size_t)errsize, "the CPU speed is %ld; it goes from 1000 to 10000000 instructions a millisecond", cycles);

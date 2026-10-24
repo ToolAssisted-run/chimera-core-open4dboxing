@@ -209,6 +209,19 @@ def main():
                     " frames draw. A movie records the speed it ran with.",
             },
             {
+                "name": "cosmetic_camera",
+                "display": "Cosmetic Camera",
+                "type": "bool",
+                "default": False,
+                "description": "The ring's cameras (F1-F10) shown without the game seeing their keys."
+                    " In the original a camera key changes the fight: a view takes its own time to"
+                    " draw, and the fight reads a value its drawing leaves behind, so a movie made"
+                    " without the cameras desyncs with them. With this on, the game always runs with"
+                    " its own camera, and a second copy of it, given the game's fight at every frame"
+                    " and the camera keys alone, draws the picture: the camera work can be added to a"
+                    " finished movie. Changes the picture only (the MCGA program; the others ignore it).",
+            },
+            {
                 "name": "clock_start",
                 "display": "Start Date and Time",
                 "type": "string",

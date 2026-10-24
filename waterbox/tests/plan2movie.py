@@ -10,15 +10,17 @@ as their mnemonics, and @X,Y where the mouse moves.
   click F             a left click at F (held 30 steps)
   end F               the movie's length
 
-Key names as mkscript's: a-z, 0-9, enter, space, backspace, esc, tab, lshift, rshift, lctrl, lalt, kp0-kp9.
+Key names as mkscript's: a-z, 0-9, enter, space, backspace, esc, tab, lshift, rshift, lctrl, lalt, kp0-kp9,
+f1-f10.
 
-usage: plan2movie.py <plan> <movie>
+usage: plan2movie.py <plan>... <movie>   (the plans one after another)
 """
 import sys
 
 NAMES = {"enter": "N", "space": "_", "backspace": "B", "esc": "X", "tab": "T", "lshift": "^", "rshift": "!",
          "lctrl": "%", "lalt": "&", "kp8": "U", "kp2": "D", "kp4": "L", "kp6": "R", "kp7": "Q", "kp9": "E",
          "kp1": "Z", "kp3": "C", "kp5": "K", "kp0": "O"}
+NAMES.update({"f%d" % (k + 1): m for k, m in enumerate("AFGHIJMPSV")})
 
 
 def letter(name):
@@ -33,7 +35,7 @@ def main():
     events = []  # (step, letter, down)
     moves = {}
     end = 0
-    for line in open(sys.argv[1]):
+    for line in (l for plan in sys.argv[1:-1] for l in open(plan)):
         p = line.split()
         if not p or p[0].startswith("#"):
             continue
@@ -68,8 +70,8 @@ def main():
     by_step = {}
     for step, k, down in sorted(events, key=lambda e: (e[0], -e[2])):
         by_step.setdefault(step, []).append((k, down))
-    with open(sys.argv[2], "w") as out:
-        out.write(f"# {sys.argv[1]}\n")
+    with open(sys.argv[-1], "w") as out:
+        out.write(f"# {' '.join(sys.argv[1:-1])}\n")
         for step in range(end):
             for k, down in by_step.get(step, []):
                 (held.add if down else held.discard)(k)

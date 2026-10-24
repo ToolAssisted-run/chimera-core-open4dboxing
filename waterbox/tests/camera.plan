@@ -1,0 +1,5 @@
+# the cosmetic camera's run (run-gate.sh): the exhibition (exhibition.plan, before this) with the cameras' keys in its
+# round: F2 (a ringside view), F5 (from above), F9 (the opponent's eyes); with the setting on the game never sees them
+key 30000 f2
+key 30400 f5
+key 30800 f9

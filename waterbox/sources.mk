@@ -10,7 +10,7 @@ MB   ?= $(or $(MINIBOX_DIR),$(HOME)/chimera/extern/chimera-common-minibox)
 # meson.build open4dboxingSources), whole. Nothing of it uses SDL: the SDL
 # frontend is frontend/, which the core is instead.
 BOX_NAMES := asm2c box_core ega_core cga_core tdy_core vga cheats dos drv_ad15 drv_mt15 drv_pc15 drv_sb15 drv_td15 \
-	mpu401 opl sb tandy dosmem disks exe game pit replay dosboot version
+	mpu401 opl sb tandy dosmem disks exe game pit replay dosboot version fiber camera
 BOX_SRCS := $(addprefix $(BOX)/,$(addsuffix .c,$(BOX_NAMES)))
 # as Open4DBoxing's meson.build: gnu11, a release build, -Wall
 BOX_CFLAGS_COMMON := -std=gnu11 -O2 -I$(BOX)
