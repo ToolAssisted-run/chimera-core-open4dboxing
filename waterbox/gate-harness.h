@@ -94,7 +94,10 @@ struct gate_opts
 	const char *audioOut;
 	int turbo;
 	long turboSettle;
+	int packed;  /* --packed: the first 64 buttons in FrameAdvance's mask too, as Chimera's frontend packs them */
 };
+/* the mask the step's FrameAdvance gets (run-native's and run-wbx's frame) */
+static uint64_t gate_packed;
 
 static uint64_t gate_fnv(uint64_t h, const void *p, size_t n)
 {
@@ -392,6 +395,10 @@ static int gate_run(const struct gate_core *c, const struct gate_opts *o)
 		for (int i = 0; i < BOX_AXIS_COUNT; i++)
 			c->set_axis(i, axes[i]);
 
+		gate_packed = 0;
+		if (o->packed)
+			for (int i = 0; i < GATE_BTN_COUNT && i < 64; i++)
+				if (buttons[i]) gate_packed |= 1ull << i;
 		c->frame();
 
 		int w = 0, h = 0, n = 0;
@@ -516,6 +523,7 @@ static int gate_parse_opts(int argc, char **argv, int first, struct gate_opts *o
 		else if (!strcmp(argv[i], "--dump-domain") && i + 2 < argc) { o->dumpDomain = argv[++i]; o->dumpPath = argv[++i]; }
 		else if (!strcmp(argv[i], "--audio") && i + 1 < argc) o->audioOut = argv[++i];
 		else if (!strcmp(argv[i], "--turbo")) o->turbo = 1;
+		else if (!strcmp(argv[i], "--packed")) o->packed = 1;
 		else if (!strcmp(argv[i], "--turbo-settle") && i + 1 < argc) o->turboSettle = strtol(argv[++i], 0, 0);
 		else if (!strcmp(argv[i], "--rerecord") || !strcmp(argv[i], "--session")) ; /* run-wbx's */
 		else if (!strcmp(argv[i], "--session-at") && i + 1 < argc) i++;                /* run-wbx's */

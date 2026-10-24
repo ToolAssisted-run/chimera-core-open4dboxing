@@ -95,7 +95,7 @@ static int core_init_done(void) { return 1; } /* Init runs before Seal, not in g
 static const char *core_load_error(void) { return (const char *)g_GetLoadError(); }
 static void core_set_button(int32_t i, int32_t s) { g_SetButton(i, s); }
 static void core_set_axis(int32_t i, int32_t v) { g_SetAxis(i, v); }
-static void core_frame(void) { g_FrameAdvance(0); }
+static void core_frame(void) { g_FrameAdvance(gate_packed); }
 static void core_set_rendering(int on) { g_SetRenderingEnabled(on); }
 static const uint32_t *core_video(int *w, int *h)
 {

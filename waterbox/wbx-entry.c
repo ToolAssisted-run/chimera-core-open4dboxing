@@ -16,7 +16,9 @@
 static char g_load_error[1024];
 
 /* A button changed through SetButton is held until it changes again; the
- * packed mask of FrameAdvance covers them all (fewer than 64). A step sees
+ * packed mask of FrameAdvance covers the first 64 (the function keys F8-F10
+ * are buttons 64-66: SetButton's alone - Chimera drives a core of more than 64
+ * buttons through SetButton, and may still pack the first 64). A step sees
  * their union. */
 static uint8_t g_set_buttons[BOX_BTN_COUNT];
 
@@ -46,7 +48,7 @@ ECL_EXPORT void SetAxis(int32_t index, int32_t value) { boxdrv_set_axis(index, v
 ECL_EXPORT void FrameAdvance(uint64_t packed)
 {
 	for (int i = 0; i < BOX_BTN_COUNT; i++)
-		boxdrv_set_button(i, g_set_buttons[i] | (int)((packed >> i) & 1));
+		boxdrv_set_button(i, g_set_buttons[i] | (i < 64 && ((packed >> i) & 1)));
 	boxdrv_frame(chimera_render_enabled);
 }
 

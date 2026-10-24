@@ -34,7 +34,7 @@ extern int64_t GetMemoryDomainSize(int i);
 extern uint64_t GetCycleCount(void);
 extern const char *GetGameProperties(void);
 
-static void frame(void) { FrameAdvance(0); }
+static void frame(void) { FrameAdvance(gate_packed); }
 static const uint32_t *video(int *w, int *h)
 {
 	*w = GetVideoWidth();

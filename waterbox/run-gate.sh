@@ -12,6 +12,8 @@
 #   - give the game its keys as its own keyboard table has them
 #   - with the cosmetic camera on, show the cameras' keys' views and leave the
 #     game alone: the same memory, sound, clock and steps as without it
+#   - take the first 64 buttons packed in FrameAdvance's mask as well, as
+#     Chimera does, without pressing the function keys past them
 #   - end when the manual's question is answered wrongly, as the original
 #     does, and be a frame of nothing after
 #   - export a property table that holds to chimera's docs/game-cores.md, and
@@ -317,6 +319,25 @@ if [ -s "$work/camera.box.txt" ] && [ -s "$work/exhibition.box.txt" ]; then
 else
 	report "camera:game" SKIP "no exhibition runs (no floppies' images)"
 fi
+
+# Chimera's packing: the frontend drives this core's 67 buttons through
+# SetButton and may pack the first 64 in FrameAdvance's mask too; the function
+# keys F8-F10 are buttons 64-66, never in that mask (the shift wraps: keypad 8,
+# bit 2, would press F10). The exhibition and the camera run with the mask the
+# same as without it - the round's keypad 8 the game's, no camera's
+for name in exhibition camera; do
+	[ -s "$work/$name.box.txt" ] || continue
+	settings='{}'; [ "$name" = camera ] && settings='{"cosmetic_camera":true}'
+	wd="$(workdir "$name" "$settings")"
+	test_args "$name" "$name"
+	boxed "$wd" "${args[@]}" --frames 31200 --packed 2>/dev/null | digests > "$work/$name.packed.txt"
+	digests < "$work/$name.box.txt" > "$work/$name.unpacked.txt"
+	if cmp -s "$work/$name.unpacked.txt" "$work/$name.packed.txt"; then
+		report "packed:$name" PASS "the first 64 buttons in FrameAdvance's mask too, as Chimera packs them: the same run"
+	else
+		report "packed:$name" FAIL "$(diff "$work/$name.unpacked.txt" "$work/$name.packed.txt" | tr '\n' ' ' | head -c 110)"
+	fi
+done
 
 # ------------------------------------------------------------------ 7. the settings
 # each build its own pictures, at its own frame rate: the VGA's 70.086 Hz, the
