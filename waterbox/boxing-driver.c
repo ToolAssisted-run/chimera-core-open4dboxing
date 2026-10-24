@@ -128,6 +128,8 @@ static const uint8_t k_scan[BOX_BTN_COUNT] = {
 	[BOX_BTN_Z] = 0x2C,
 	[BOX_BTN_0] = 0x0B, [BOX_BTN_1] = 0x02, [BOX_BTN_2] = 0x03, [BOX_BTN_3] = 0x04, [BOX_BTN_4] = 0x05,
 	[BOX_BTN_5] = 0x06, [BOX_BTN_6] = 0x07, [BOX_BTN_7] = 0x08, [BOX_BTN_8] = 0x09, [BOX_BTN_9] = 0x0A,
+	[BOX_BTN_F1] = 0x3B, [BOX_BTN_F2] = 0x3C, [BOX_BTN_F3] = 0x3D, [BOX_BTN_F4] = 0x3E, [BOX_BTN_F5] = 0x3F,
+	[BOX_BTN_F6] = 0x40, [BOX_BTN_F7] = 0x41, [BOX_BTN_F8] = 0x42, [BOX_BTN_F9] = 0x43, [BOX_BTN_F10] = 0x44,
 };
 
 static int modifier(int b) { return b == BOX_BTN_LEFT_SHIFT || b == BOX_BTN_RIGHT_SHIFT || b == BOX_BTN_CTRL || b == BOX_BTN_ALT; }

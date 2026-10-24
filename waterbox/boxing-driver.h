@@ -58,6 +58,9 @@ enum BoxButton
 	/* the digits */
 	BOX_BTN_0,
 	BOX_BTN_1, BOX_BTN_2, BOX_BTN_3, BOX_BTN_4, BOX_BTN_5, BOX_BTN_6, BOX_BTN_7, BOX_BTN_8, BOX_BTN_9,
+	/* the function keys: the ring's cameras and panels (after the others: a movie of the 57 earlier buttons keeps its
+	 * columns) */
+	BOX_BTN_F1, BOX_BTN_F2, BOX_BTN_F3, BOX_BTN_F4, BOX_BTN_F5, BOX_BTN_F6, BOX_BTN_F7, BOX_BTN_F8, BOX_BTN_F9, BOX_BTN_F10,
 	BOX_BTN_COUNT
 };
 

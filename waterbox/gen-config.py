@@ -66,6 +66,8 @@ MNEMONICS = {
 }
 MNEMONICS.update({c: c.lower() for c in "ABCDEFGHIJKLMNOPQRSTUVWXYZ"})
 MNEMONICS.update({c: c for c in "0123456789"})
+# (the function keys: the capitals no other button writes, in their order)
+MNEMONICS.update({"F%d" % (k + 1): c for k, c in enumerate("AFGHIJMPSV")})
 HEADERS = {
     "Mouse Left": "ML", "Mouse Right": "MR",
     "Keypad 8": "KP8", "Keypad 2": "KP2", "Keypad 4": "KP4", "Keypad 6": "KP6", "Keypad 7": "KP7", "Keypad 9": "KP9",
@@ -73,6 +75,7 @@ HEADERS = {
     "Enter": "Ent", "Space": "Spc", "Backspace": "BkSp", "Esc": "Esc", "Tab": "Tab",
     "Left Shift": "LSh", "Right Shift": "RSh", "Ctrl": "Ctl", "Alt": "Alt",
 }
+HEADERS.update({"F%d" % k: "F%d" % k for k in range(1, 11)})
 AXIS_HEADERS = {"Mouse X": "MX", "Mouse Y": "MY"}
 SYSTEM_NAMES = {
     "4DSportsBoxing": "4D Sports Boxing",

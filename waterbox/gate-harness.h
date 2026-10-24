@@ -9,8 +9,8 @@
  * characters (gate_key_index, the mnemonics waterbox.config declares: a
  * letter or a digit is its key, < and > the mouse's buttons, U D L R Q E Z C
  * K O the keypad's 8 2 4 6 7 9 1 3 5 0, N Enter, _ Space, B Backspace, X Esc,
- * T Tab, ^ and ! the left and right Shift, % Ctrl, & Alt; anything else
- * ignored), and @X,Y to put the mouse at that pixel from that step on; a line
+ * T Tab, ^ and ! the left and right Shift, % Ctrl, & Alt, A F G H I J M P S V
+ * the function keys F1 to F10; anything else ignored), and @X,Y to put the mouse at that pixel from that step on; a line
  * starting with # is a comment. --movie-at puts its first line at a given
  * step; --press adds a key held for a stretch of steps, --mouse a place. The
  * axes are sent every step, as the frontend sends them.
@@ -135,6 +135,16 @@ static int gate_key_index(char c)
 	case '!': return BOX_BTN_RIGHT_SHIFT;
 	case '%': return BOX_BTN_CTRL;
 	case '&': return BOX_BTN_ALT;
+	case 'A': return BOX_BTN_F1;
+	case 'F': return BOX_BTN_F2;
+	case 'G': return BOX_BTN_F3;
+	case 'H': return BOX_BTN_F4;
+	case 'I': return BOX_BTN_F5;
+	case 'J': return BOX_BTN_F6;
+	case 'M': return BOX_BTN_F7;
+	case 'P': return BOX_BTN_F8;
+	case 'S': return BOX_BTN_F9;
+	case 'V': return BOX_BTN_F10;
 	default: return -1;
 	}
 }
