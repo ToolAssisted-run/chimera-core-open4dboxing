@@ -134,7 +134,7 @@ workdir() {
 # ------------------------------------------------------------------ 3. no files
 wd="$work/nofiles"; mkdir -p "$wd"; printf '{"sound":"sb"}' > "$wd/settings"
 boxed "$wd" --frames 1 > "$work/nofiles.txt" 2>/dev/null
-if grep -qx "loadError=4D Sports Boxing needs disk1.img - add it as the project's firmware." "$work/nofiles.txt"; then
+if grep -qx "loadError=error.needs_disk"$'\x1f'"disk1.img" "$work/nofiles.txt"; then
 	report "refuse:no-files" PASS "$(sed -n 's/^loadError=//p' "$work/nofiles.txt")"
 else
 	report "refuse:no-files" FAIL "$(head -1 "$work/nofiles.txt")"
@@ -161,12 +161,12 @@ refusal() {   # name, the expected loadError, then what to do to the work dir
 		report "refuse:$name" FAIL "$(grep -m1 . "$work/r-$name.txt")"
 	fi
 }
-refusal missing-disk "4D Sports Boxing needs disk2.img - add it as the project's firmware." "rm disk2.img"
-refusal not-a-floppy "The floppies' images could not be read: disk1.img: not a FAT disk's image (its boot sector's figures)" \
+refusal missing-disk "error.needs_disk"$'\x1f'"disk2.img" "rm disk2.img"
+refusal not-a-floppy "error.disks_unreadable"$'\x1f'"disk1.img: not a FAT disk's image (its boot sector's figures)" \
 	"python3 -c \"open('disk1.img', 'wb').write(bytes(737280))\""
-refusal not-the-game "4DBMCGA.EXE is not on the floppies' images: they are not 4D Sports Boxing's." "cp disk2.img disk1.img"
+refusal not-the-game "error.program_not_on_disks"$'\x1f'"4DBMCGA.EXE" "cp disk2.img disk1.img"
 if [ "$roms" = 1 ]; then
-	refusal mt32-without-roms "4D Sports Boxing needs MT32_PCM.ROM for the MT-32's sound - add it as the project's firmware." \
+	refusal mt32-without-roms "error.needs_mt32_rom"$'\x1f'"MT32_PCM.ROM" \
 		"rm MT32_PCM.ROM; printf '{\"sound\":\"mt32\"}' > settings"
 fi
 
@@ -366,7 +366,7 @@ ticks() { python3 -c "import sys, struct; print(struct.unpack_from('<I', open(sy
 wd="$(workdir clock-bad '{"clock_start":"1991-02-29 12:00:00"}')"
 bad="$(boxed "$wd" --frames 1 2>/dev/null | sed -n 's/^loadError=//p')"
 t1="$(ticks "$work/clock.bin")"; t0="$(ticks "$work/clock-default.bin")"
-if [ -n "$t1" ] && [ -n "$t0" ] && [ "$t1" != "$t0" ] && [ "$bad" = 'the start date and time is "1991-02-29 12:00:00"; it is written YYYY-MM-DD HH:MM:SS, from 1980' ]; then
+if [ -n "$t1" ] && [ -n "$t0" ] && [ "$t1" != "$t0" ] && [ "$bad" = "error.clock_start_setting"$'\x1f'"1991-02-29 12:00:00" ]; then
 	report "settings:clock" PASS "1999-12-31 23:59: BIOS ticks $t1 at step 800 (the default's $t0); 1991-02-29 refused"
 else
 	report "settings:clock" FAIL "ticks $t1 vs $t0; bad: $bad"

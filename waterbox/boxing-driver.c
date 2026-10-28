@@ -51,6 +51,11 @@
 #define MT32EMU_API_TYPE 1
 #include <mt32emu.h>
 
+/* A text a person reads is a key of languages/en.json, each of its
+ * arguments after a TEXT_ARG (chimera docs/translations.md). TEXT_ARG is a
+ * string of its own so the byte after it is never read as more of its hex. */
+#define TEXT_ARG "\x1f"
+
 /* ------------------------------------------------------------ the settings */
 
 /* the builds: the program, the frame rate (boxing-driver.h) */
@@ -290,14 +295,14 @@ static int mt32_open(char *err, int errsize)
 		 * as long as the machine */
 		if (n < 0 || mt32emu_add_rom_data(g_mt32, data, (size_t)n, NULL) < 0)
 		{
-			snprintf(err, (size_t)errsize, "The MT-32 did not take %s: it is not an MT-32 ROM Munt knows.", k_roms[i]);
+			snprintf(err, (size_t)errsize, "error.mt32_rom_unknown" TEXT_ARG "%s", k_roms[i]);
 			return 0;
 		}
 	}
 	mt32emu_set_stereo_output_samplerate(g_mt32, BOX_AUDIO_RATE);
 	if (mt32emu_open_synth(g_mt32) != MT32EMU_RC_OK)
 	{
-		snprintf(err, (size_t)errsize, "The MT-32 could not start with these ROMs.");
+		snprintf(err, (size_t)errsize, "error.mt32_could_not_start");
 		return 0;
 	}
 	return 1;
@@ -355,7 +360,7 @@ static int check_files(char *err, int errsize)
 		FILE *f = fopen(k_disks[i], "rb");
 		if (!f)
 		{
-			snprintf(err, (size_t)errsize, "4D Sports Boxing needs %s - add it as the project's firmware.", k_disks[i]);
+			snprintf(err, (size_t)errsize, "error.needs_disk" TEXT_ARG "%s", k_disks[i]);
 			return 0;
 		}
 		fclose(f);
@@ -366,7 +371,7 @@ static int check_files(char *err, int errsize)
 			FILE *f = fopen(k_roms[i], "rb");
 			if (!f)
 			{
-				snprintf(err, (size_t)errsize, "4D Sports Boxing needs %s for the MT-32's sound - add it as the project's firmware.", k_roms[i]);
+				snprintf(err, (size_t)errsize, "error.needs_mt32_rom" TEXT_ARG "%s", k_roms[i]);
 				return 0;
 			}
 			fclose(f);
@@ -377,7 +382,7 @@ static int check_files(char *err, int errsize)
 	const int n = disks_load(".", &files, why, sizeof why);
 	if (n < 0)
 	{
-		snprintf(err, (size_t)errsize, "The floppies' images could not be read: %s", why[0] == '.' && why[1] == '/' ? why + 2 : why);
+		snprintf(err, (size_t)errsize, "error.disks_unreadable" TEXT_ARG "%s", why[0] == '.' && why[1] == '/' ? why + 2 : why);
 		return 0;
 	}
 	int found = 0;
@@ -386,7 +391,7 @@ static int check_files(char *err, int errsize)
 	disks_free(files, n);
 	if (!found)
 	{
-		snprintf(err, (size_t)errsize, "%s is not on the floppies' images: they are not 4D Sports Boxing's.", k_programs[g.program].file);
+		snprintf(err, (size_t)errsize, "error.program_not_on_disks" TEXT_ARG "%s", k_programs[g.program].file);
 		return 0;
 	}
 	return 1;
@@ -405,7 +410,7 @@ int boxdrv_init(char *err, int errsize)
 		if (!strcmp(text, k_programs[i].id)) g.program = i;
 	if (g.program < 0)
 	{
-		snprintf(err, (size_t)errsize, "the video setting is %s; it is mcga, ega, cga or tandy", text);
+		snprintf(err, (size_t)errsize, "error.video_setting" TEXT_ARG "%s", text);
 		return 0;
 	}
 
@@ -417,7 +422,7 @@ int boxdrv_init(char *err, int errsize)
 		if (!strcmp(text, k_sounds[i].id)) sound = i;
 	if (sound < 0)
 	{
-		snprintf(err, (size_t)errsize, "the sound setting is %s; it is mt32, sb, adlib, speaker or tandy", text);
+		snprintf(err, (size_t)errsize, "error.sound_setting" TEXT_ARG "%s", text);
 		return 0;
 	}
 	g.mt32 = !strcmp(k_sounds[sound].id, "mt32");
@@ -427,7 +432,7 @@ int boxdrv_init(char *err, int errsize)
 	const int64_t start = parse_clock(text);
 	if (start < 0)
 	{
-		snprintf(err, (size_t)errsize, "the start date and time is \"%s\"; it is written YYYY-MM-DD HH:MM:SS, from 1980", text);
+		snprintf(err, (size_t)errsize, "error.clock_start_setting" TEXT_ARG "%s", text);
 		return 0;
 	}
 
@@ -442,7 +447,7 @@ int boxdrv_init(char *err, int errsize)
 	camera_set(wbx_setting_bool("cosmetic_camera", 0) != 0);
 	if (cycles < 1000 || cycles > 10000000)
 	{
-		snprintf(err, (size_t)errsize, "the CPU speed is %ld; it goes from 1000 to 10000000 instructions a millisecond", cycles);
+		snprintf(err, (size_t)errsize, "error.cpu_speed_setting" TEXT_ARG "%ld", cycles);
 		return 0;
 	}
 
@@ -467,7 +472,7 @@ int boxdrv_init(char *err, int errsize)
 	g.co = coro_create(game_body, 8u << 20);
 	if (!g.co)
 	{
-		snprintf(err, (size_t)errsize, "no memory for the game's stack");
+		snprintf(err, (size_t)errsize, "error.no_memory_for_the_game_s_stack");
 		return 0;
 	}
 	return 1;

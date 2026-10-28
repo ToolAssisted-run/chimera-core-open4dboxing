@@ -130,25 +130,27 @@ static void prop(const char *name, const char *dom, long off, const char *type, 
  * random state at DS:8472. The other builds keep them elsewhere. */
 #define MCGA_DS 0x31730L
 
+/* A description is a key of languages/en.json; the boxer's name, its
+ * argument, follows a 0x1F (\u001f in the JSON; chimera docs/translations.md). */
 static void boxer(const char *who, long at, long stats)
 {
 	char name[64], extra[256];
 	snprintf(name, sizeof name, "%s.Health", who);
-	snprintf(extra, sizeof extra, "\"description\": \"The %s boxer's health, the D bar: 16384 fresh; a landed punch takes from it, below 1 floors him\"", who);
+	snprintf(extra, sizeof extra, "\"description\": \"property.health\\u001f%s\"", who);
 	prop(name, "Conventional Memory", MCGA_DS + at + 0x10, "s16", who, extra);
 	snprintf(name, sizeof name, "%s.Stamina", who);
-	snprintf(extra, sizeof extra, "\"description\": \"The %s boxer's stamina, the P bar: 16384 fresh; a punch thrown and a block cost it\"", who);
+	snprintf(extra, sizeof extra, "\"description\": \"property.stamina\\u001f%s\"", who);
 	prop(name, "Conventional Memory", MCGA_DS + at + 0x0E, "s16", who, extra);
 	snprintf(name, sizeof name, "%s.Endurance", who);
-	snprintf(extra, sizeof extra, "\"description\": \"The %s boxer's endurance, the O bar against his maximum: 10 a punch thrown, and drained by lost health\"", who);
+	snprintf(extra, sizeof extra, "\"description\": \"property.endurance\\u001f%s\"", who);
 	prop(name, "Conventional Memory", MCGA_DS + at + 0x12, "s16", who, extra);
 	snprintf(name, sizeof name, "%s.Down", who);
-	snprintf(extra, sizeof extra, "\"writable\": false, \"description\": \"Set while the %s boxer is down\"", who);
+	snprintf(extra, sizeof extra, "\"writable\": false, \"description\": \"property.down\\u001f%s\"", who);
 	prop(name, "Conventional Memory", MCGA_DS + at + 0x0C, "u16", who, extra);
 	snprintf(name, sizeof name, "%s.Punches Thrown", who);
-	prop(name, "Conventional Memory", MCGA_DS + stats, "u16", who, "\"description\": \"In the round, as the round's statistics count them\"");
+	prop(name, "Conventional Memory", MCGA_DS + stats, "u16", who, "\"description\": \"property.punches\"");
 	snprintf(name, sizeof name, "%s.Punches Landed", who);
-	prop(name, "Conventional Memory", MCGA_DS + stats + 2, "u16", who, "\"description\": \"In the round, as the round's statistics count them\"");
+	prop(name, "Conventional Memory", MCGA_DS + stats + 2, "u16", who, "\"description\": \"property.punches\"");
 }
 
 static void table_init(void)
@@ -156,10 +158,10 @@ static void table_init(void)
 	if (g_len) return;
 	add("{ \"properties\": [");
 
-	prop("Frame", "Game State", 0, "u32", "Game", "\"writable\": false, \"description\": \"Video frames shown: 70.086 a second on the VGA, 59.92 on the EGA, the CGA and the Tandy\"");
-	prop("Ended", "Game State", 4, "bool", "Game", "\"writable\": false, \"description\": \"The player left the game (its EXIT)\"");
+	prop("Frame", "Game State", 0, "u32", "Game", "\"writable\": false, \"description\": \"property.frame\"");
+	prop("Ended", "Game State", 4, "bool", "Game", "\"writable\": false, \"description\": \"property.ended\"");
 	prop("Build", "Game State", 5, "u8", "Game",
-		"\"writable\": false, \"values\": { \"0\": \"MCGA\", \"1\": \"EGA\", \"2\": \"CGA\", \"3\": \"Tandy\" }, \"description\": \"The program that runs, as the Video setting chose it\"");
+		"\"writable\": false, \"values\": { \"0\": \"MCGA\", \"1\": \"EGA\", \"2\": \"CGA\", \"3\": \"Tandy\" }, \"description\": \"property.build\"");
 	if (boxdrv_program() == 0)
 	{
 		boxer("Blue", 0xBA12, 0xA488);
@@ -167,10 +169,9 @@ static void table_init(void)
 		prop("Manual Question.Boxer", "Conventional Memory", MCGA_DS + 0x9756, "u16", "Game",
 			"\"values\": { \"0\": \"Lars Lugnut\", \"1\": \"Hammer McGee\", \"2\": \"Blam Blam\", \"3\": \"Glump Fistwhistle\", "
 			"\"4\": \"Lefty Enright\", \"5\": \"Weegie Wonka\", \"6\": \"Clinch Roberts\", \"7\": \"Mac the ouch\", "
-			"\"8\": \"Butch McKenna\", \"9\": \"ow\" }, \"description\": \"The name the manual's question asks for, chosen when it is "
-			"asked (9, the champion's face, wants the ow of Stan Chow: the original's own slip)\"");
+			"\"8\": \"Butch McKenna\", \"9\": \"ow\" }, \"description\": \"property.manual_question\"");
 		prop("Random.State", "Conventional Memory", MCGA_DS + 0x8472, "u32", "Game",
-			"\"description\": \"The C library's rand() state (x = x * 0x343FD + 0x269EC3), never seeded: the game's randomness is how many times it ran\"");
+			"\"description\": \"property.random_state\"");
 	}
 
 	add("\n  ]\n}\n");

@@ -284,7 +284,7 @@ p["settings"]["clock_start"] = "1991-02-29 12:00:00"
 json.dump(p, open(sys.argv[2], "w"), indent="\t")
 EOF
 code="$(gui refuse "$config" "$work/bad-clock.chimeraProject" 10)"
-if grep -qF 'the start date and time is "1991-02-29 12:00:00"; it is written YYYY-MM-DD HH:MM:SS, from 1980' "$work/refuse.log"; then
+if grep -qF 'The start date and time is "1991-02-29 12:00:00". It is written YYYY-MM-DD HH:MM:SS, from 1980 on.' "$work/refuse.log"; then
 	report "gui:refusal" PASS "the core's load error is what Chimera shows (headless: exit $code with the text)"
 else
 	report "gui:refusal" FAIL "exit $code; $(grep -m1 -i 'start date\|error' "$work/refuse.log" | cut -c1-100)"

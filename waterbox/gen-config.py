@@ -12,17 +12,42 @@ import os
 import re
 import sys
 
+# ---- the texts a person reads ----------------------------------------------
+# Every one is a key of languages/en.json (chimera docs/translations.md):
+# text() records the key's English and returns the key, each of its
+# arguments after it behind a 0x1F; write_texts() puts them in the table,
+# beside the keys the core's code names.
+TEXTS = {}
+
+
+def text(key, english, *args):
+    if TEXTS.setdefault(key, english) != english:
+        sys.exit("%s has two texts: %r and %r" % (key, TEXTS[key], english))
+    return "\x1f".join([key] + [str(a) for a in args])
+
+
+def write_texts(path):
+    table = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {"texts": {}}
+    table["texts"].update(TEXTS)
+    table["texts"] = dict(sorted(table["texts"].items()))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(table, f, indent="\t", ensure_ascii=False)
+        f.write("\n")
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # the floppies' images Open4DBoxing was checked with (its README, "Getting the game"); the MT-32's ROMs of the
 # first generation, v1.07 (the DOSBox-X and OpenSamurai cores' firmware ids and hashes)
 DISKS = [
-    ("disk1.img", 737280, "5B324ABEC67BAA90A44C04BB9CC82BA50F4FB962", "the first floppy, with the four programs (MCGA/VGA, EGA, CGA, Tandy) and the sound drivers"),
-    ("disk2.img", 737280, "C63AA4787B3A7860EC07B171AD3B47DA1A41E58E", "the second floppy, with the rings, the boxers' heads and the rest of the pictures and sounds"),
+    ("disk1.img", 737280, "5B324ABEC67BAA90A44C04BB9CC82BA50F4FB962", text("firmware.what.disk1", "the first floppy, with the four programs (MCGA/VGA, EGA, CGA, Tandy) and the sound drivers")),
+    ("disk2.img", 737280, "C63AA4787B3A7860EC07B171AD3B47DA1A41E58E", text("firmware.what.disk2", "the second floppy, with the rings, the boxers' heads and the rest of the pictures and sounds")),
 ]
 ROMS = [
-    ("MT32_CONTROL.ROM", 65536, "B083518FFFB7F66B03C23B7EB4F868E62DC5A987", "control", "the control ROM of the Roland MT-32, version 1.07, dumped from a unit of the first generation"),
-    ("MT32_PCM.ROM", 524288, "F6B1EEBC4B2D200EC6D3D21D51325D5B48C60252", "PCM", "the PCM ROM of the Roland MT-32, which is the same in every MT-32"),
+    ("MT32_CONTROL.ROM", 65536, "B083518FFFB7F66B03C23B7EB4F868E62DC5A987", text("firmware.kind.control", "control"),
+     text("firmware.what.mt32_control", "the control ROM of the Roland MT-32, version 1.07, dumped from a unit of the first generation")),
+    ("MT32_PCM.ROM", 524288, "F6B1EEBC4B2D200EC6D3D21D51325D5B48C60252", text("firmware.kind.pcm", "PCM"),
+     text("firmware.what.mt32_pcm", "the PCM ROM of the Roland MT-32, which is the same in every MT-32")),
 ]
 
 
@@ -105,12 +130,13 @@ def main():
     for name, size, sha1, what in DISKS:
         firmware.append({
             "id": name,
-            "display": "4D Sports Boxing %s" % name,
-            "description": ("%s, the image of %s of 4D Sports Boxing (Distinctive Software, 1991, DOS), a 720 KB floppy."
-                            " You have to supply it, because this package includes none of the game's files."
-                            " Open4DBoxing reads the game's files from the image as the original read them from the"
-                            " floppy, and never writes to it. Another image of the same floppy, or one of your own,"
-                            " can be used in its place, and the project then records its hash.") % (name, what),
+            "display": text("firmware.disk", "4D Sports Boxing %1", name),
+            "description": text("firmware.disk.about",
+                                "%1, the image of %2 of 4D Sports Boxing (Distinctive Software, 1991, DOS), a 720 KB floppy."
+                                " You have to supply it, because this package includes none of the game's files."
+                                " Open4DBoxing reads the game's files from the image as the original read them from the"
+                                " floppy, and never writes to it. Another image of the same floppy, or one of your own,"
+                                " can be used in its place, and the project then records its hash.", name, what),
             "size": size,
             "sha1": sha1,
             "name": name,
@@ -118,10 +144,11 @@ def main():
     for name, size, sha1, kind, what in ROMS:
         firmware.append({
             "id": name,
-            "display": "Roland MT-32 %s ROM" % kind,
-            "description": ("%s is not one of the game's files. It is %s. You have to supply it when the sound is"
-                            " the MT-32's, because this package includes none of it. Another MT-32 ROM that Munt"
-                            " knows can be used in its place, and the project then records its hash.") % (name, what),
+            "display": text("firmware.mt32_rom", "Roland MT-32 %1 ROM", kind),
+            "description": text("firmware.mt32_rom.about",
+                                "%1 is not one of the game's files. It is %2. You have to supply it when the sound is"
+                                " the MT-32's, because this package includes none of it. Another MT-32 ROM that Munt"
+                                " knows can be used in its place, and the project then records its hash.", name, what),
             "size": size,
             "sha1": sha1,
             "name": name,
@@ -172,64 +199,64 @@ def main():
         "settings": [
             {
                 "name": "video",
-                "display": "Video Card",
+                "display": text("setting.video", "Video Card"),
                 "type": "enum",
                 "options": videos,
                 "default": "mcga",
-                "description": "Which of the game's four programs runs, one for each video card:"
+                "description": text("setting.video.about", "Which of the game's four programs runs, one for each video card:"
                     " the MCGA/VGA (256 colours, the default), the EGA (16 colours), the CGA (4 colours)"
                     " or the Tandy 1000 (16 colours). The MCGA's program runs at the VGA's 70 frames a"
                     " second, the others at 60. The game's properties (the boxers' health, stamina"
-                    " and endurance) are known for the MCGA's program only.",
+                    " and endurance) are known for the MCGA's program only."),
             },
             {
                 "name": "sound",
-                "display": "Sound",
+                "display": text("setting.sound", "Sound"),
                 "type": "enum",
                 "options": sounds,
                 "default": "mt32",
-                "description": "The sound driver the game loads, as its setup chose it: the Roland"
+                "description": text("setting.sound.about", "The sound driver the game loads, as its setup chose it: the Roland"
                     " MT-32 (the default), the Sound Blaster (its FM music with the digitised"
                     " announcer and crowd), the AdLib, the PC speaker or the Tandy's sound chip."
                     " The MT-32 needs the two ROMs of an MT-32 (version 1.07, the first generation),"
-                    " which the project supplies as firmware.",
+                    " which the project supplies as firmware."),
             },
             {
                 "name": "cpu_speed",
-                "display": "CPU Speed",
+                "display": text("setting.cpu_speed", "CPU Speed"),
                 "type": "int",
                 "default": 22000,
                 "min": 1000,
                 "max": 10000000,
-                "description": "The PC's speed, as DOSBox's cycles: the instructions it runs a"
+                "description": text("setting.cpu_speed.about", "The PC's speed, as DOSBox's cycles: the instructions it runs a"
                     " millisecond (the default, 22,000, is the 486 of the DOSBox-X machine"
                     " Open4DBoxing was checked against). The game's frames take its time, and in a"
                     " fight the boxers' moves go by the game's timer: at 220,000 every frame fits in"
                     " one of the timer's 10 ms ticks, and the fight goes the same whatever the"
-                    " frames draw. A movie records the speed it ran with.",
+                    " frames draw. A movie records the speed it ran with."),
             },
             {
                 "name": "cosmetic_camera",
-                "display": "Cosmetic Camera",
+                "display": text("setting.cosmetic_camera", "Cosmetic Camera"),
                 "type": "bool",
                 "default": False,
-                "description": "The ring's cameras (F1-F10) shown without the game seeing their keys."
+                "description": text("setting.cosmetic_camera.about", "The ring's cameras (F1-F10) shown without the game seeing their keys."
                     " In the original a camera key changes the fight: a view takes its own time to"
                     " draw, and the fight reads a value its drawing leaves behind, so a movie made"
                     " without the cameras desyncs with them. With this on, the game always runs with"
                     " its own camera, and a second copy of it, given the game's fight at every frame"
                     " and the camera keys alone, draws the picture: the camera work can be added to a"
-                    " finished movie. Changes the picture only (the MCGA program; the others ignore it).",
+                    " finished movie. Changes the picture only (the MCGA program; the others ignore it)."),
             },
             {
                 "name": "clock_start",
-                "display": "Start Date and Time",
+                "display": text("setting.clock_start", "Start Date and Time"),
                 "type": "string",
                 "default": "1991-07-30 14:47:00",
-                "description": "The PC's date and time when the game starts, written as"
+                "description": text("setting.clock_start.about", "The PC's date and time when the game starts, written as"
                     " YYYY-MM-DD HH:MM:SS (the default is the date of the game's programs on its"
                     " floppies). The clock then advances with the game, and the BIOS's tick count"
-                    " starts from the time of day. A movie records the start time it ran with.",
+                    " starts from the time of day. A movie records the start time it ran with."),
             },
         ],
         "firmware": firmware,
@@ -237,6 +264,7 @@ def main():
     with open(out, "w") as f:
         json.dump(cfg, f, indent=2)
         f.write("\n")
+    write_texts(os.path.join(HERE, "languages", "en.json"))
 
 
 if __name__ == "__main__":
