@@ -65,8 +65,8 @@ switch, file layer and host in place of its SDL frontend.
 Chimera includes no cores and downloads none. Download the `.chimeraCore`
 package from this repository's
 [Releases](https://github.com/ToolAssisted-run/chimera-core-open4dboxing/releases)
-page, or build it, and put it in the `Cores` folder beside `Chimera.exe`;
-File > Core Manager lists it. The same file works on Linux and on Windows.
+page, or build it, and put it in the `cores` folder beside Chimera's program;
+Tools > Core Manager... lists it. The same file works on Linux and on Windows.
 The floppies' images and the MT-32's ROMs are yours to supply, as the
 project's firmware.
 

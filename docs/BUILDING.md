@@ -24,13 +24,14 @@ Placeholders used in this document:
 
   ```
   sudo apt-get update
-  sudo apt-get install -y --no-install-recommends meson ninja-build build-essential cmake pkg-config python3 mono-complete xvfb libgl1-mesa-dev libegl-dev libx11-dev libxext-dev libasound2-dev
+  sudo apt-get install -y --no-install-recommends meson ninja-build build-essential cmake pkg-config python3 libgl1-mesa-dev libegl-dev libx11-dev libxext-dev libasound2-dev python3-pip
   ```
 
 - The compilers are the distribution's gcc and g++ (`build-essential`).
 - `curl`. miniBox's build of the C++ guest toolchain calls it (below).
-- The .NET SDK 8.0. CI sets it up with `actions/setup-dotnet@v4`,
-  `dotnet-version: '8.0'`. It builds Chimera and runs Chimera's contract
+- Qt 6.12, to build Chimera's window. Chimera's `tools/ci-chimera.sh`
+  installs it (from Qt's own archives, with aqt) and builds Chimera; the
+  workflow keeps it in `~/qt` between runs. It is needed to run Chimera's contract
   tests; the core's own build does not use it.
 
 What gets downloaded or built along the way:
@@ -154,10 +155,10 @@ differ from HEAD), which Chimera's publish script refuses.
 ## Install it into Chimera
 
 Chimera includes no cores and downloads nothing. A core gets into Chimera as a
-file somebody puts in its `Cores` folder: `<chimera>/build/Cores/` in a source
-checkout (where `build-package.sh -r <chimera>` writes), the `Cores` folder
-beside `Chimera.exe` in a release bundle, or the folder chosen in
-File > Core Manager > Change folder... File > Core Manager lists it. The same
+file somebody puts in its `cores` folder: `<chimera>/build/Cores/` in a source
+checkout (where `build-package.sh -r <chimera>` writes), the `cores` folder
+beside Chimera's program in a release bundle, or the folder chosen in
+Tools > Core Manager... > Change folder... Tools > Core Manager... lists it. The same
 file works on Linux and on Windows. In Chimera a new project picks the core in
 File > New Project... (Kind: Game).
 
@@ -214,6 +215,10 @@ MT-32's ROMs the MT-32's legs are skipped.
 
 ### The frontend gate
 
+It still runs Chimera's old C# window (`Chimera.exe` under Mono and Wine),
+which Chimera no longer has, so it does not run until it is moved to the Qt
+window, as the other cores' frontend tests were.
+
 ```
 ./waterbox/tests/run-frontend.sh --chimera <chimera> [--chimera-run <path>] [-p <package>] [--windows <bundle>]
 ```
@@ -265,20 +270,13 @@ CI runs Chimera's own tests against the package it just built. They need
 Chimera built first:
 
 ```
-cd <chimera>
-meson setup build/meson-linux --prefix "$PWD/build" --libdir dll
-meson compile -C build/meson-linux
-meson install -C build/meson-linux
-dotnet build source/gui/Chimera.sln -c Release /nodeReuse:false -p:UseSharedCompilation=false
+<chimera>/tools/ci-chimera.sh
 ```
 
 Then, with the package in `<chimera>/build/Cores`:
 
 ```
-cd <chimera>
-CHIMERA_CORES_DIR="$PWD/build/Cores" dotnet test source/gui/Chimera.Tests.Client.Common/Chimera.Tests.Client.Common.csproj \
-  -c Release --nologo \
-  --filter "FullyQualifiedName~InstalledCorePackagesTests|FullyQualifiedName~MnemonicUniquenessTests"
+CHIMERA_CORES_DIR=<chimera>/build/Cores <chimera>/build/meson-linux/source/ui/test-packages
 ```
 
 They prove the package is readable, is built for an ABI this frontend runs,
