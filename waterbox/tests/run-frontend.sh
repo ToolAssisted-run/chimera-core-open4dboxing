@@ -278,10 +278,16 @@ fi
 # the core's own refusal reaches the frontend: a start date that is not a
 # date, which Chimera passes on as a string and only the core refuses
 python3 - "$work/test.chimeraProject" "$work/bad-clock.chimeraProject" <<'EOF'
-import json, sys
-p = json.load(open(sys.argv[1]))
+import json, sys, zipfile
+# a project is a zip (Chimera's since 2026-11-02): project.json and the input's lines
+z = zipfile.ZipFile(sys.argv[1])
+p = json.loads(z.read("project.json"))
 p["settings"]["clock_start"] = "1991-02-29 12:00:00"
-json.dump(p, open(sys.argv[2], "w"), indent="\t")
+with zipfile.ZipFile(sys.argv[2], "w", zipfile.ZIP_DEFLATED) as o:
+    o.writestr("project.json", json.dumps(p, indent="\t"))
+    for name in z.namelist():
+        if name != "project.json":
+            o.writestr(name, z.read(name))
 EOF
 code="$(gui refuse "$config" "$work/bad-clock.chimeraProject" 10)"
 if grep -qF 'The start date and time is "1991-02-29 12:00:00". It is written YYYY-MM-DD HH:MM:SS, from 1980 on.' "$work/refuse.log"; then
