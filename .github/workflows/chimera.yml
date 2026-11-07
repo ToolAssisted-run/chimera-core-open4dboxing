@@ -33,11 +33,23 @@ env:
 jobs:
 
   gate:
-    name: gate (package, declaration, Chimera contract)
+    # Once per CPU, each on a runner of that CPU: a package is machine code for
+    # one CPU, and miniBox's guest toolchain builds for the CPU it runs on.
+    name: gate (package, declaration, Chimera contract) (${{ matrix.arch }})
     # 24.04 and not ubuntu-latest: Ubuntu 26's GCC 15 compiles C as C23, where the guest musl's basename() without a
     # prototype takes no arguments, and the guest libstdc++ (miniBox's -Dguest_cpp) stops building there
-    runs-on: ubuntu-24.04
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x86_64
+            runner: ubuntu-24.04
+            qt: gcc_64
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+            qt: gcc_arm64
     steps:
       - uses: actions/checkout@v6
         with:
@@ -60,7 +72,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/qt
-          key: qt-6.12.0-linux-aqt-3.3.0
+          key: qt-6.12.0-linux-${{ matrix.arch }}-aqt-3.3.0
 
       - name: Build Chimera (the engine, chimera-run and the window)
         run: chimera-checkout/tools/ci-chimera.sh "$HOME/qt"
@@ -71,7 +83,7 @@ jobs:
           path: |
             chimera-checkout/extern/chimera-common-minibox/build/meson-linux
             chimera-checkout/extern/chimera-common-minibox/build/meson-cpp
-          key: guest-cpp-${{ runner.os }}-${{ hashFiles('chimera-checkout/extern/chimera-common-minibox/.git') }}-${{ hashFiles('chimera-checkout/extern/chimera-common-minibox/meson.build') }}
+          key: guest-cpp-${{ runner.os }}-${{ matrix.arch }}-${{ hashFiles('chimera-checkout/extern/chimera-common-minibox/.git') }}-${{ hashFiles('chimera-checkout/extern/chimera-common-minibox/meson.build') }}
 
       - name: Build miniBox (host + C++ guest toolchain)
         run: |
@@ -106,7 +118,7 @@ jobs:
       - name: Publish the core package
         uses: actions/upload-artifact@v7
         with:
-          name: open4dboxing-${{ github.sha }}
+          name: open4dboxing-${{ github.sha }}-${{ matrix.arch }}
           path: chimera-checkout/build/Cores/open4dboxing.chimeraCore
           if-no-files-found: error
 
@@ -114,7 +126,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: gate-work
+          name: gate-work-${{ matrix.arch }}
           path: build/gate/
 
   publish:
@@ -132,3 +144,4 @@ jobs:
       core-id: open4dboxing
       artifact: open4dboxing-${{ github.sha }}
       package: open4dboxing.chimeraCore
+      arches: x86_64 aarch64
