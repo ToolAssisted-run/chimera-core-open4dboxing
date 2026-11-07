@@ -162,7 +162,7 @@ def main():
         "systemNames": SYSTEM_NAMES,
         "author": "Sergio Martin, from Distinctive Software's 4D Sports Boxing (1991); chimera port by Sergio Martin",
         "url": "https://github.com/ToolAssisted-run/chimera-core-open4dboxing",
-        "runsOn": ["windows-x86_64", "linux-x86_64", "macos-x86_64"],
+        "runsOn": ["windows-x86_64", "linux-x86_64", "macos-x86_64", "windows-aarch64", "linux-aarch64", "macos-aarch64"],
         "deterministic": True,
         "memoryLayoutMiB": [32, 8, 8, 8, 64],
         "_memoryLayoutMiB_note": "sbrk, sealed, invisible, plain, mmap. The game's files read from the floppies' images are on the heap; the DOS machine's megabyte, the video card's memory and the game's written files are the program's data; the game's stack (8 MB) is mmap'd (MAP_STACK).",
